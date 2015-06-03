@@ -47,7 +47,7 @@ And b.txt, containing:
 And c.txt, containing:
   the contents of c
 
-$ runhaskell io.hs "files.txt"
+$ runhaskell FileIO.hs "files.txt"
 ============ a.txt
 the contents of a
 
@@ -58,6 +58,15 @@ the contents of b
 the contents of c
 
 -}
+
+--files :: IO (List FilePath)
+--files =  lines <$> readFile "share/files.txt"
+
+--contents :: IO () 
+--contents = files >>= \fs -> map (readFile >>= putStrLn) fs
+
+--all :: IO ()
+--all = files >>= \fs -> map contents fs 
 
 -- /Tip:/ use @getArgs@ and @run@
 main ::
@@ -90,8 +99,8 @@ getFile =
 printFiles ::
   List (FilePath, Chars)
   -> IO ()
-printFiles =
-  error "todo: Course.FileIO#printFiles"
+printFiles  = 
+   error "todo: Course.FileIO#printFiles"
 
 printFile ::
   FilePath

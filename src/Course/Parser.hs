@@ -43,7 +43,7 @@ instance Show ParseError where
 
 data ParseResult a =
   ErrorResult ParseError
-  | Result Input a
+  | Result Input a -- returns both the type resulting from the parse (a) plus the input in the stream after that (Input)
   deriving Eq
 
 instance Show a => Show (ParseResult a) where
@@ -76,11 +76,10 @@ unexpectedCharParser c =
 --
 -- >>> parse (valueParser 3) "abc"
 -- Result >abc< 3
-valueParser ::
-  a
-  -> Parser a
-valueParser =
-  error "todo: Course.Parser#valueParser"
+valueParser :: a -> Parser a
+valueParser a = P(\i -> Result i a)
+
+  --error "todo: Course.Parser#valueParser"
 
 -- | Return a parser that always fails with the given error.
 --
@@ -88,8 +87,8 @@ valueParser =
 -- True
 failed ::
   Parser a
-failed =
-  error "todo: Course.Parser#failed"
+failed = P(\_ -> ErrorResult Failed)
+  --error "todo: Course.Parser#failed"
 
 -- | Return a parser that succeeds with a character off the input or fails with an error if the input is empty.
 --
@@ -101,7 +100,11 @@ failed =
 character ::
   Parser Char
 character =
-  error "todo: Course.Parser#character"
+  P(\i -> case i of 
+            Nil -> ErrorResult UnexpectedEof
+            h:.t -> Result t h)
+            
+  --error "todo: Course.Parser#character"
 
 -- | Return a parser that maps any succeeding result with the given function.
 --
@@ -114,8 +117,11 @@ mapParser ::
   (a -> b)
   -> Parser a
   -> Parser b
-mapParser =
-  error "todo: Course.Parser#mapParser"
+mapParser f (P k)  = P(\i -> case k i of 
+                              ErrorResult e -> ErrorResult e
+                              Result j a -> Result j (f a)
+                  )
+--  error "todo: Course.Parser#mapParser"
 
 -- | This is @mapParser@ with the arguments flipped.
 -- It might be more helpful to use this function if you prefer this argument order.
@@ -151,8 +157,12 @@ bindParser ::
   (a -> Parser b)
   -> Parser a
   -> Parser b
-bindParser =
-  error "todo: Course.Parser#bindParser"
+bindParser f p = 
+    P(\i -> case parse p i of
+              ErrorResult e -> ErrorResult e
+              Result j a -> parse (f a) j)
+
+--  error "todo: Course.Parser#bindParser"
 
 -- | This is @bindParser@ with the arguments flipped.
 -- It might be more helpful to use this function if you prefer this argument order.
