@@ -62,8 +62,8 @@ the contents of c
 --files :: IO (List FilePath)
 --files =  lines <$> readFile "share/files.txt"
 
---contents :: IO () 
---contents = files >>= \fs -> map (readFile >>= putStrLn) fs
+--contents :: IO(List FilePath) -> IO () 
+--contents x = x >>= \fs -> (readFile >>= putStrLn) fs  --readFile >>= putStrLn
 
 --all :: IO ()
 --all = files >>= \fs -> map contents fs 
