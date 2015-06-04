@@ -650,8 +650,6 @@ personParser =
              smokerParser <* spaces1 <*>
              phoneParser
 
---  error "todo: Course.Parser#personParser"
-
 -- Make sure all the tests pass!
 
 

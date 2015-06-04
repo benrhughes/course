@@ -41,8 +41,9 @@ instance Functor (State s) where
     (a -> b)
     -> State s a
     -> State s b
-  (<$>) =
-      error "todo: Course.State#(<$>)"
+  (<$>) f (State k) = 
+    State (\s -> let (a, s') = k s
+                  in (f a, s'))
 
 -- | Implement the `Apply` instance for `State s`.
 -- >>> runState (pure (+1) <*> pure 0) 0
@@ -51,13 +52,25 @@ instance Functor (State s) where
 -- >>> import qualified Prelude as P
 -- >>> runState (State (\s -> ((+3), s P.++ ["apple"])) <*> State (\s -> (7, s P.++ ["banana"]))) []
 -- (10,["apple","banana"])
+{-
+  need (b,s)
+  have 
+    f :: s -> (a -> b, s)
+    k :: s -> (a, s)
+-}
 instance Apply (State s) where
   (<*>) ::
     State s (a -> b)
     -> State s a
     -> State s b 
-  (<*>) =
-    error "todo: Course.State (<*>)#instance (State s)"
+  State f <*> State k =
+    State(\s -> let (a, s') = k s
+                    (ab, _) = f s'
+                in (ab a, s'))
+--  State f <*> State a =
+--    State(\s -> let (g, t) = f s
+--                    (q, u) = a t
+--                in (g q, u)) 
 
 -- | Implement the `Applicative` instance for `State s`.
 -- >>> runState (pure 2) 0
@@ -66,8 +79,8 @@ instance Applicative (State s) where
   pure ::
     a
     -> State s a
-  pure =
-    error "todo: Course.State pure#instance (State s)"
+  pure a =
+    State(\s -> (a, s))
 
 -- | Implement the `Bind` instance for `State s`.
 -- >>> runState ((const $ put 2) =<< put 1) 0
@@ -77,8 +90,9 @@ instance Bind (State s) where
     (a -> State s b)
     -> State s a
     -> State s b
-  (=<<) =
-    error "todo: Course.State (=<<)#instance (State s)"
+  f =<< State k = 
+    State(\s -> let (a, t) = k s
+                in runState (f a) t)
 
 instance Monad (State s) where
 
@@ -89,8 +103,10 @@ exec ::
   State s a
   -> s
   -> s
-exec =
-  error "todo: Course.State#exec"
+exec (State k) s =
+  snd (k s)
+  --let (_,t) = k s
+  -- in t
 
 -- | Run the `State` seeded with `s` and retrieve the resulting value.
 --
@@ -99,8 +115,8 @@ eval ::
   State s a
   -> s
   -> a
-eval =
-  error "todo: Course.State#eval"
+eval (State k) =
+  fst . k
 
 -- | A `State` where the state also distributes into the produced value.
 --
@@ -109,7 +125,7 @@ eval =
 get ::
   State s s
 get =
-  error "todo: Course.State#get"
+  State(\s -> (s, s))
 
 -- | A `State` where the resulting state is seeded with the given value.
 --
@@ -118,8 +134,9 @@ get =
 put ::
   s
   -> State s ()
-put =
-  error "todo: Course.State#put"
+put s =
+  State(\_ -> ((), s))
+
 
 -- | Find the first element in a `List` that satisfies a given predicate.
 -- It is possible that no element is found, hence an `Optional` result.
