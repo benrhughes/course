@@ -157,8 +157,9 @@ findM ::
   (a -> f Bool)
   -> List a
   -> f (Optional a)
-findM =
-  error "todo: Course.State#findM"
+findM _ Nil = pure Empty
+findM p (h:.t) = 
+  p h >>= \b -> if b then pure (Full h) else findM p t
 
 -- | Find the first element in a `List` that repeats.
 -- It is possible that no element repeats, hence an `Optional` result.
@@ -171,8 +172,12 @@ firstRepeat ::
   Ord a =>
   List a
   -> Optional a
-firstRepeat =
-  error "todo: Course.State#firstRepeat"
+firstRepeat list =
+  eval (findM (\a -> 
+    State(\s -> (S.member a s, S.insert a s))) list) S.empty
+    -- could use lift2 
+
+-- need 
 
 -- | Remove all duplicate elements in a `List`.
 -- /Tip:/ Use `filtering` and `State` with a @Data.Set#Set@.
@@ -211,5 +216,14 @@ distinct =
 isHappy ::
   Integer
   -> Bool
-isHappy =
-  error "todo: Course.State#isHappy"
+--isHappy n =
+--  let r = produce (toInteger . sum .map (join (*) . digitToInt) . show') n
+--      s = firstRepeat r
+--      t = contains 1 s
+--   in t 
+--
+isHappy = 
+    contains 1
+      . firstRepeat
+        .produce
+          (toInteger . sum . map (join(*) . digitToInt) . show') 

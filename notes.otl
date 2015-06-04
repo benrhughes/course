@@ -1,0 +1,23 @@
+Definition
+	is the preservation of referrential integrity
+	simple, but far reaching conseqeunces
+
+Haskell
+	All haskell functions take one argument (currying!)
+	lambda syntax: \t -> ...
+	can infix functions (starts with a-z) with ``, eg `myfunc`
+	can prefix operations (non a-z) with (), eg (+) 2 3
+	all functions have to start with a lower case alpha or non-alpha
+	Typeclasses 
+		have to start with an upper case alpha
+		orphan instances: where the instance is not in the same module as the typeclass or the type constraint
+			avoid them	
+	Data Types
+		always start with an upper case alpha
+		constructors always start with an upper case
+		type-variables always start with lower-case
+		Sum type
+			where you have more than one constructor for a data type
+	foldr f z list
+		replaces cons with the f
+		replaces Nil with z
